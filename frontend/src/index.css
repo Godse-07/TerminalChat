@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Ensure full height */
+html, body, #root { height: 100%; }
+
+/* MUCH BRIGHTER Terminal palette */
+:root {
+  --bg: #000000;        /* Pure black */
+  --fg: #32ff00;        /* Neon green (very bright) */
+  --muted: #7fffa7;     /* Soft light green for system text */
+  --accent: #ffcc00;    /* Bright yellow-orange for prompt (retro look) */
+  --border: rgba(255,255,255,0.08); /* More visible border */
+  --ok: #00ff99;        /* Bright mint green */
+  --err: #ff4444;       /* Bright error red */
+}
+
+/* Tailwind-compatible utility classes */
+.bg-terminal-bg { background-color: var(--bg); }
+.text-terminal-text { color: var(--fg); }
+.text-terminal-system { color: var(--muted); }
+.text-terminal-user { color: #66ff66; } /* Bright lime for username */
+.border-terminal-border { border-color: var(--border); }
+.text-terminal-prompt { color: var(--accent); }
+.placeholder-terminal-text { color: var(--fg); opacity: 0.6; }
+.bg-terminal-ok { background-color: var(--ok); }
+.text-terminal-ok { color: var(--ok); }
+.bg-terminal-error { background-color: var(--err); }
+.text-terminal-error { color: var(--err); }
+
+/* cursor */
+.cursor-blink {
+  display: inline-block;
+  animation: blink 1s steps(2, start) infinite;
+  color: var(--fg);
+}
+@keyframes blink { 50% { opacity: 0 } }
+
+/* CRT scanline effect */
+.terminal-scanline {
+  background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 100% 3px;
+}
+
+/* message animation */
+.message-enter {
+  animation: fadeInUp .18s ease;
+}
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(6px) }
+  to { opacity:1; transform: translateY(0) }
+}
+
+/* monospace terminal feel */
+body {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+  background-color: var(--bg);
+  color: var(--fg);
+}
