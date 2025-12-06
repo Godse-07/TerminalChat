@@ -1,0 +1,17 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}   # allows manual trigger from Actions UI
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render endpoint
+        run: |
+          URL="https://terminalchat-8zbl.onrender.com/ping"
+          # simple curl with timeout and small user-agent
+          curl --silent --fail --show-error --max-time 10 -H "User-Agent: keep-awake-bot/1.0" "$URL" || echo "Ping failed at $(date)"

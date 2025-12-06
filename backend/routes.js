@@ -7,4 +7,12 @@ router.get("/create-room", createRoomLimiter, (req, res) => {
   res.json({ room: id });
 });
 
+router.get("/ping", (req, res) => {
+  res.json({
+    status: "ok",
+    statusCode: 200,
+    message: "pong",
+  })
+})
+
 module.exports = router;
