@@ -2,9 +2,8 @@ name: Keep Render Alive
 
 on:
   schedule:
-    # every 10 minutes
     - cron: '*/10 * * * *'
-  workflow_dispatch: {}   # allows manual trigger from Actions UI
+  workflow_dispatch: {}
 
 jobs:
   ping:
