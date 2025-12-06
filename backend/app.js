@@ -12,7 +12,9 @@ const io = new Server(server, {
   cors: { origin: "*" },
 });
 
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }));
+app.use(
+  cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" })
+);
 
 app.use(express.static("public"));
 app.use("/", routes);
@@ -72,6 +74,48 @@ io.on("connection", (socket) => {
     const r = room || socket.data.room;
     if (!r) return;
     socket.to(r).emit("stop-typing", { nick: socket.data.nick || "anon" });
+  });
+
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+  const CHUNK_RATE_LIMIT = 400;
+
+  socket._fileChunks = 0;
+  const fileChunkInterval = setInterval(() => {
+    socket._fileChunks = 0;
+  }, 1000);
+
+  socket.on("file-meta", ({ room, meta } = {}) => {
+    if (!room || !meta || !meta.id) return;
+    if (meta.size && meta.size > MAX_FILE_SIZE) {
+      socket.emit("system", `File too large: ${meta.name || "file"}`);
+      return;
+    }
+
+    socket.to(room).emit("file-meta", { from: socket.id, meta });
+  });
+
+  socket.on("file-chunk", ({ room, fileId, seq, chunk } = {}) => {
+    if (!room || !fileId || typeof seq !== "number" || !chunk) return;
+
+    socket._fileChunks++;
+    if (socket._fileChunks > CHUNK_RATE_LIMIT) {
+      socket.emit(
+        "system",
+        "Upload throttled: too many chunks. Try again slower."
+      );
+      return;
+    }
+
+    socket.to(room).emit("file-chunk", { from: socket.id, fileId, seq, chunk });
+  });
+
+  socket.on("file-done", ({ room, fileId } = {}) => {
+    if (!room || !fileId) return;
+    socket.to(room).emit("file-done", { from: socket.id, fileId });
+  });
+
+  socket.on("disconnect", () => {
+    clearInterval(fileChunkInterval);
   });
 
   socket.on("msg", (data) => {
